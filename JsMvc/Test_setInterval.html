@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+	<meta charset="utf-8">
+	<title>TestJSMVC</title>
+	<script type="text/javascript" src="./js/jquery/jquery.js"></script>
+	<script type="text/javascript" src="./js/resource/resource.js"></script>
+	<script type="text/javascript">
+		function Model(value) {
+			this._value = typeof value === 'undefined' ? '' : value;
+			this._listeners = [];
+			Model.prototype.set = function (value) {
+				var self = this;
+				self._value = value;
+				// model中的值改变时，应通知注册过的回调函数
+				// 按照Javascript事件处理的一般机制，我们异步地调用回调函数
+				// 如果觉得setTimeout影响性能，也可以采用requestAnimationFrame
+				requestAnimationFrame(function () {
+					self._listeners.forEach(function (listener) {
+						listener.call(self, value);
+					});
+				});
+			};
+			Model.prototype.watch = function (listener) {
+				// 注册监听的回调函数
+				this._listeners.push(listener);
+			};
+			Model.prototype.bind = function (node) {
+				// 将watch的逻辑和通用的回调函数放到这里
+				this.watch(function (value) {
+					node.innerHTML = value;
+				});
+			};
+		}
+		function Controller(callback) {
+			var models = {};
+			// 找到所有有bind属性的元素
+			var views = document.querySelectorAll('[bind]');
+			// 将views处理为普通数组
+			views = Array.prototype.slice.call(views, 0);
+			views.forEach(function (view) {
+				var modelName = view.getAttribute('bind');
+				// 取出或新建该元素所绑定的model
+				models[modelName] = models[modelName] || new Model(0);
+				// 完成该元素和指定model的绑定
+				models[modelName].bind(view);
+			});
+			// 调用controller的具体逻辑，将models传入，方便业务处理
+			callback.call(this, models);
+		}	
+	</script>
+	</head>
+	<body>
+		<table>
+			<thead>
+				<tr>
+					<td id="metal">金属</td><td id="oil">汽油</td><td id="food">粮食</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td bind="metalValue">1</td><td bind="oilValue">2</td><td bind="foodValue">3</td>
+				</tr>
+				<tr>
+					<td id="metalRateValue">1</td><td id="oilRateValue">1</td><td id="foodRateValue">1</td>
+				</tr>
+				<tr>
+					<td><input type="button" value="改变金属升值率" id="changeMetalRate" /></td>
+					<td><input type="button" value="改变汽油升值率" id="changeOilRate" /></td>
+					<td><input type="button" value="改变粮食升值率" id="changeFoodRate" /></td>
+				</tr>
+			</tbody>	
+		</table>
+
+		<script type="text/javascript">
+			function _changeMetalRate(){
+				var changeRate = Math.floor(Math.random()*10);				
+				Resource.metalRate += changeRate;
+				$("#metalRateValue").html(parseFloat($("#metalRateValue").html())+parseFloat(changeRate));
+			}
+			function _changeOilRate(){
+				var changeRate =  Math.floor(Math.random()*10);					
+				Resource.oilRate += changeRate;
+				$("#oilRateValue").html(parseFloat($("#oilRateValue").html())+parseFloat(changeRate));
+			}
+			function _changeFoodRate(){
+				var changeRate =  Math.floor(Math.random()*10);				
+				Resource.foodRate += changeRate;
+				$("#foodRateValue").html(parseFloat($("#foodRateValue").html())+parseFloat(changeRate));
+			}
+			$("#changeMetalRate").click(function(){
+				_changeMetalRate();
+			});
+			$("#changeOilRate").click(function(){
+				_changeOilRate()
+			});
+			$("#changeFoodRate").click(function(){
+				_changeFoodRate()
+			});
+			new Controller(function (models) {
+				function setTime() {
+					models.metalValue.set(parseFloat(models.metalValue._value)+parseFloat(Resource.metalRate));
+					models.oilValue.set(parseFloat(models.oilValue._value)+parseFloat(Resource.oilRate));
+					models.foodValue.set(parseFloat(models.foodValue._value)+parseFloat(Resource.foodRate));				}
+				setTime();
+				setInterval(setTime, 1000);
+			});
+		</script>
+	</body>
+<html>
