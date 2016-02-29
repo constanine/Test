@@ -1,0 +1,3 @@
+swlip的向上划拉,加载更多数据
+onTouchEnd:holdPosition 小于负数是向上划拉,大于正数是向下划拉
+onTouchEnd中callback loadNewSlides(),loadNewSlides是页面加载的方法定义
