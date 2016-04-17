@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import common.Player;
-
 import DB.DBUtil;
 
 
@@ -50,7 +49,6 @@ public class SecrecyUtil {
 		//获取新插入的用户ID
 		String sql = "SELECT ID FROM CP_Player where code =?";
 		List<Map<String, Object>> sqlRs = DBUtil.getListOfMapBySql(sql, new Object[]{playerCode});
-		sqlRs = DBUtil.getListOfMapBySql(sql, new Object[]{playerCode});
 		int playID = Integer.valueOf(sqlRs.get(0).get("ID").toString());
 		
 		Player player = new Player();
@@ -62,6 +60,26 @@ public class SecrecyUtil {
 		player.setAuthlevel(1);	
 		result.put("result", "sucess");
 		result.put("player", player);
+		return result;
+	}
+
+	public static boolean registerCheckName(String name) throws SQLException {
+		boolean result = true;
+		String sql = "SELECT ID FROM CP_Player where Name =?";
+		List<Map<String, Object>> sqlRs = DBUtil.getListOfMapBySql(sql, new Object[]{name});
+		if(sqlRs.size()>0){
+			result = false;
+		}
+		return result;
+	}
+
+	public static boolean registerCheckPlayerCode(String playerCode) throws SQLException {
+		boolean result = true;
+		String sql = "SELECT ID FROM CP_Player where code =?";
+		List<Map<String, Object>> sqlRs = DBUtil.getListOfMapBySql(sql, new Object[]{playerCode});
+		if(sqlRs.size()>0){
+			result = false;
+		}
 		return result;
 	}
 	

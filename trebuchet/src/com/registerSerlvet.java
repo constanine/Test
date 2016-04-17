@@ -69,6 +69,42 @@ public class registerSerlvet extends HttpServlet {
 				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
 				out.flush();
 			}
+		}else if("checkCode".equals(type)){
+			String playerCode = request.getParameter("r_playerCode");
+			try {
+				boolean canNext = SecrecyUtil.registerCheckPlayerCode(playerCode);				
+				PrintWriter out = response.getWriter();
+				if(canNext){
+					out.write("{\"canDoNetx\":\"sucess\"}");
+				}else{
+					out.write("{\"canDoNetx\":\"failure\"}");
+				}
+				response.setContentType("text/json; charset=UTF-8");
+			} catch (SQLException e) {
+				log.debug("System has error:"+e.getMessage());
+				response.setContentType("text/json; charset=UTF-8");
+				PrintWriter out = response.getWriter();
+				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
+				out.flush();
+			}
+		}else if("checkName".equals(type)){
+			String name = request.getParameter("r_name");
+			try {
+				boolean canNext = SecrecyUtil.registerCheckName(name);				
+				PrintWriter out = response.getWriter();
+				if(canNext){
+					out.write("{\"canDoNetx\":\"sucess\"}");
+				}else{
+					out.write("{\"canDoNetx\":\"failure\"}");
+				}
+				response.setContentType("text/json; charset=UTF-8");
+			} catch (SQLException e) {
+				log.debug("System has error:"+e.getMessage());
+				response.setContentType("text/json; charset=UTF-8");
+				PrintWriter out = response.getWriter();
+				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
+				out.flush();
+			}
 		}
 	}
 

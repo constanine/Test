@@ -35,9 +35,11 @@
 				<form action="register" method="post" id="r_form">
 					<p class="user-name">
 						<span>注册账号:</span><input class="txt" type="text" id="r_playerCode" />
+						<span id="r_playerCodeCheckResult"></span><input type="hidden" id="r_playerCodeCheck" value="erroe" />
 					</p>
 					<p class="user-name">
 						<span>昵称:</span><input class="txt" type="text" id="r_name" />
+						<span id="r_nameCheckResult"></span><input type="hidden" id="r_nameCheck" value="erroe"/>
 					</p>
 					<p class="user-name">
 						<span>注册邮箱:</span><input class="txt" type="text" id="r_Email" />
@@ -82,6 +84,16 @@
 				cancel_register();
 			});
 			
+			$("#r_playerCode").blur(function(){
+				var itself =this;
+				checkPlayerCode(itself);	
+			});
+			
+			$("#r_name").blur(function(){
+				var itself =this;
+				checkName(itself);
+			});
+			
 			$("#btn_create_register").click(function(){
 				var r_form = $("#r_form");
 				if(checkPasswordSetp1(r_form)){
@@ -105,30 +117,104 @@
 			return true;
 		}
 		
+		function checkPlayerCode(itself){
+			if(null == $(itself).val() || $(itself).val().trim == ""){
+				$("#r_playerCodeCheckResult").html("账号不能为空").css("color","red");
+				$("#r_playerCodeCheck").val("error");
+			}else{
+				var r_form = $("#r_form");
+				var url=r_form.attr("action"); 
+				var parameter = {
+					type:"checkCode",
+					r_playerCode:$("#r_playerCode",r_form).val()
+				};
+				$.ajax({
+					type:"POST",
+					async: true,        //异步
+					contentType:"application/x-www-form-urlencoded; charset=UTF-8", //发送至服务器的数据类型, 这个是默认值
+					url:		url,    
+					data:		parameter,  
+					dataType:	'json',    //服务器返回的数据类型
+					success:function(data){    
+						if(data.canDoNetx =="failure"){
+							$("#r_playerCodeCheckResult").html("账号已被注册").css("color","red");
+							$("#r_playerCodeCheck").val("error");
+						}else{
+							$("#r_playerCodeCheckResult").html("账号可用").css("color","green");
+							$("#r_playerCodeCheck").val("ok");
+						}
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("页面请求失败！\r\n\r\nHttp状态码："+XMLHttpRequest.status);   //弹出错误信息
+					}
+				});
+			}
+		}
+		
+		function checkName(itself){
+			if(null == $(itself).val() || $(itself).val().trim == ""){
+				$("#r_nameCheckResult").html("账号不能为空").css("color","red");
+				$("#r_nameCheck").val("error");
+			}else{
+				var r_form = $("#r_form");
+				var url=r_form.attr("action"); 
+				var parameter = {
+					type:"checkName",
+					r_name:$("#r_name",r_form).val()
+				};
+				$.ajax({
+					type:"POST",
+					async: true,        //异步
+					contentType:"application/x-www-form-urlencoded; charset=UTF-8", //发送至服务器的数据类型, 这个是默认值
+					url:		url,    
+					data:		parameter,  
+					dataType:	'json',    //服务器返回的数据类型
+					success:function(data){    
+						if(data.canDoNetx =="failure"){
+							$("#r_nameCheckResult").html("昵称已被使用").css("color","red");
+							$("#r_nameCheck").val("error");
+						}else{
+							$("#r_nameCheckResult").html("昵称可用").css("color","green");
+							$("#r_nameCheck").val("ok");
+						}
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("页面请求失败！\r\n\r\nHttp状态码："+XMLHttpRequest.status);   //弹出错误信息
+					}
+				});
+			}
+		}
+		
 		function submit_register_info(r_form){
-			var r_form = $("#r_form");
-			var url=r_form.attr("action"); 
-			var parameter = {
-				type:"create",
-				r_playerCode:$("#r_playerCode",r_form).val(),
-				r_name:$("#r_name",r_form).val(),
-				r_password:$("#r_password",r_form).val(),
-				r_email:$("#r_Email",r_form).val()
-			};
-			$.ajax({
-				type:"POST",
-				async: true,        //异步
-				contentType:"application/x-www-form-urlencoded; charset=UTF-8", //发送至服务器的数据类型, 这个是默认值
-				url:		url,    
-				data:		parameter,  
-				dataType:	'json',    //服务器返回的数据类型
-				success:function(data){    
-					window.location.href = data.forward;
-				},
-				error:function(XMLHttpRequest, textStatus, errorThrown) {
-					alert("页面请求失败！\r\n\r\nHttp状态码："+XMLHttpRequest.status);   //弹出错误信息
-				}
-			});
+			var r_nameCheck = $("#r_nameCheck").val();
+			var r_playerCodeCheck = $("#r_playerCodeCheck").val();
+			if(!(r_nameCheck == "ok" && r_playerCodeCheck == "ok")){
+				alert("账号或者昵称错误,请先检查！");
+			}else{				
+				var r_form = $("#r_form");
+				var url=r_form.attr("action"); 
+				var parameter = {
+					type:"create",
+					r_playerCode:$("#r_playerCode",r_form).val(),
+					r_name:$("#r_name",r_form).val(),
+					r_password:$("#r_password",r_form).val(),
+					r_email:$("#r_Email",r_form).val()
+				};
+				$.ajax({
+					type:"POST",
+					async: true,        //异步
+					contentType:"application/x-www-form-urlencoded; charset=UTF-8", //发送至服务器的数据类型, 这个是默认值
+					url:		url,    
+					data:		parameter,  
+					dataType:	'json',    //服务器返回的数据类型
+					success:function(data){    
+						window.location.href = data.forward;
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("页面请求失败！\r\n\r\nHttp状态码："+XMLHttpRequest.status);   //弹出错误信息
+					}
+				});
+			}
 		}
 	</script>
 </body>
