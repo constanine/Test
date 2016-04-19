@@ -3,8 +3,6 @@ package common;
 import java.util.ArrayList;
 import java.util.List;
 
-import Element.Planet;
-
 public class Player {
 	/*baseinfo*/
 	long ID;
@@ -13,7 +11,8 @@ public class Player {
 	String password;
 	int Authlevel;
 	long BitCoin;
-	long MainPlanet;
+	long MainPlanetID;
+	Planet MainPlanet;
 	
 	/*secrecy*/
 	String Email;
@@ -71,12 +70,6 @@ public class Player {
 	public void setAuthlevel(int authlevel) {
 		Authlevel = authlevel;
 	}
-	public long getMainPlanet() {
-		return MainPlanet;
-	}
-	public void setMainPlanet(long main_planet) {
-		MainPlanet = main_planet;
-	}
 	public String getLastip() {
 		return Lastip;
 	}
@@ -94,5 +87,17 @@ public class Player {
 	}
 	public void setRegisterTime(long register_time) {
 		RegisterTime = register_time;
+	}
+	public long getMainPlanetID() {
+		return MainPlanetID;
+	}
+	public void setMainPlanetID(long mainPlanetID) {
+		MainPlanetID = mainPlanetID;
+	}
+	public void setMainPlanet(Planet mainPlanet) {
+		MainPlanet = mainPlanet;
+	}
+	public Planet getMainPlanet() {
+		return MainPlanet;
 	}	
 }

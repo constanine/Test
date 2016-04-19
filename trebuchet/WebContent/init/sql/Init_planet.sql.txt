@@ -1,0 +1,17 @@
+CREATE TABLE `CP_PLANET` (
+  `ID` int(11) unsigned NOT NULL auto_increment,
+  `Name` varchar(50) NOT NULL default '行星',
+  `latitudes` int(3) NOT NULL default 0, 
+  `longitudes`  int(3) NOT NULL default 0,
+  `galaxy` int(3) NOT NULL default 0,
+  `metal` int(11) NOT NULL default 0,
+  `fule` int(11) NOT NULL default 0,
+  `feed` int(11) NOT NULL default 0,
+  `crystal` int(11) NOT NULL default 0,
+  `power` int(11) NOT NULL default 0,
+  `last_update` bigint NOT NULL default 0,
+  `id_owner` int(11) NOT NULL default 0,
+  `field` int(3) NOT NULL default 0,
+  `tempture`int(3) NOT NULL default 0,
+  PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8;

@@ -3,6 +3,7 @@ package com;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,9 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import com.alibaba.fastjson.JSON;
+
+import functions.CommonUtil;
 import secrecy.MD5Util;
 import secrecy.SecrecyUtil;
 
@@ -53,56 +57,88 @@ public class registerSerlvet extends HttpServlet {
 			password = MD5Util.MD5(password);
 			log.info("用户注册,用户"+playerCode+"/"+name+">>验证");
 			
-			Map<String, Object> checkMap;
+			Map<String,Object> result= new HashMap<String,Object>();
 			try {
-				checkMap = SecrecyUtil.register(playerCode, name, password, email);
-				log.info("用户注册,用户"+playerCode+"/"+name+">>注册完成");
-				HttpSession session = request.getSession();
-				session.setAttribute("player", checkMap.get("player"));
-				PrintWriter out = response.getWriter();
-				out.write("{\"forward\":\"./home.jsp\"}");
+				boolean canDoNext = true;
+				if(!SecrecyUtil.isNameValid(name)){
+					result.put("result", "failure");
+					result.put("errorMsg", "账昵不规则");		
+					canDoNext = false;
+				}
+				if(!SecrecyUtil.registerCheckPlayerCode(playerCode)){
+					result.put("result", "failure");
+					result.put("errorMsg", "账号已存在");		
+					canDoNext = false;
+				}
+				if(! SecrecyUtil.registerCheckName(name) && canDoNext){
+					result.put("result", "failure");
+					result.put("errorMsg", "昵称已存在");
+				}
+				if(canDoNext){
+					Map<String, Object> playInfo = SecrecyUtil.register(playerCode, name, password, email);
+					log.info("用户注册,用户"+playerCode+"/"+name+">>注册完成");
+					HttpSession session = request.getSession();
+					session.setAttribute("player", playInfo.get("player"));
+					result.put("result", "sucess");
+					result.put("forward", "./home.jsp");
+				}
 				response.setContentType("text/json; charset=UTF-8");
+				PrintWriter out = response.getWriter();
+				String json = JSON.toJSONString(result);
+				out.write(json);
 			} catch (SQLException e) {
-				log.debug("System has error:"+e.getMessage());
+				CommonUtil.LogError(log,e);
+				result.put("errorMsg","注册时,系统错误");
 				response.setContentType("text/json; charset=UTF-8");
 				PrintWriter out = response.getWriter();
-				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
+				String json = JSON.toJSONString(result);
+				out.write(json);
 				out.flush();
 			}
 		}else if("checkCode".equals(type)){
 			String playerCode = request.getParameter("r_playerCode");
+			Map<String,Object> result= new HashMap<String,Object>();
 			try {
 				boolean canNext = SecrecyUtil.registerCheckPlayerCode(playerCode);				
 				PrintWriter out = response.getWriter();
 				if(canNext){
-					out.write("{\"canDoNetx\":\"sucess\"}");
+					result.put("canDoNetx","sucess");	
 				}else{
-					out.write("{\"canDoNetx\":\"failure\"}");
+					result.put("canDoNetx","failure");	
 				}
 				response.setContentType("text/json; charset=UTF-8");
+				String json = JSON.toJSONString(result);
+				out.write(json);
 			} catch (SQLException e) {
-				log.debug("System has error:"+e.getMessage());
+				CommonUtil.LogError(log,e);
+				result.put("errorMsg","注册时,系统错误");
 				response.setContentType("text/json; charset=UTF-8");
 				PrintWriter out = response.getWriter();
-				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
+				String json = JSON.toJSONString(result);
+				out.write(json);
 				out.flush();
 			}
 		}else if("checkName".equals(type)){
 			String name = request.getParameter("r_name");
+			Map<String,Object> result= new HashMap<String,Object>();
 			try {
 				boolean canNext = SecrecyUtil.registerCheckName(name);				
 				PrintWriter out = response.getWriter();
 				if(canNext){
-					out.write("{\"canDoNetx\":\"sucess\"}");
+					result.put("canDoNetx","sucess");					
 				}else{
-					out.write("{\"canDoNetx\":\"failure\"}");
+					result.put("canDoNetx","failure");
 				}
 				response.setContentType("text/json; charset=UTF-8");
+				String json = JSON.toJSONString(result);
+				out.write(json);
 			} catch (SQLException e) {
-				log.debug("System has error:"+e.getMessage());
+				CommonUtil.LogError(log,e);
+				result.put("errorMsg","注册时,系统错误");
 				response.setContentType("text/json; charset=UTF-8");
 				PrintWriter out = response.getWriter();
-				out.write("{\"errorMsg\":\"注册时,系统错误\"}");
+				String json = JSON.toJSONString(result);
+				out.write(json);
 				out.flush();
 			}
 		}

@@ -133,8 +133,10 @@ public class DBUtil {
 		try{
 			conn = getConnection(DBUtil.dataSource);		
 			statement=conn.prepareStatement(sql);
-			for(int pIdx=0;pIdx<params.length;pIdx++){
-				statement.setObject(pIdx+1,params[pIdx].toString());
+			if(null != params){
+				for(int pIdx=0;pIdx<params.length;pIdx++){
+					statement.setObject(pIdx+1,params[pIdx].toString());
+				}
 			}
 			brs = statement.executeQuery();
 			colNames = getDBColumnName(brs);

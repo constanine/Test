@@ -1,0 +1,14 @@
+CREATE TABLE `CP_Player` (
+  `ID` int(11) unsigned NOT NULL auto_increment,
+  `Code` varchar(32) NOT NULL default '',
+  `Name` varchar(50) NOT NULL default '',
+  `Password` varchar(60) NOT NULL default '',
+  `Email` varchar(64) NOT NULL default '',
+  `Authlevel` int(1) NOT NULL default '0',
+  `MainPlanetID` int(11) unsigned NOT NULL default '0',
+  `BitCoin`	int(11) unsigned NOT NULL default '0',
+  `Lastip` varchar(40) NOT NULL default '',
+  `Ip_at_reg` varchar(40) NOT NULL default '',
+  `RegisterTime` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) DEFAULT CHARSET=utf8;
