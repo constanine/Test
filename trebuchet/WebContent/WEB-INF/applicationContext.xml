@@ -20,6 +20,7 @@
 	    <property name="initialSize" value="5"/>
 	    <property name="maxActive" value="10"/>
 	    <property name="maxIdle" value="10"/>
+	    <property name="defaultAutoCommit" value="false" />
 	</bean>
 	
 	<bean id="DBUtil" class="DB.DBUtil">

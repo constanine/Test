@@ -14,6 +14,8 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import DB.DBUtil;
+
 import com.alibaba.fastjson.JSON;
 
 import functions.CommonUtil;
@@ -143,5 +145,8 @@ public class registerSerlvet extends HttpServlet {
 			}
 		}
 	}
-
+	
+	protected void destory(){
+		DBUtil.finishSqlResult();
+	}
 }

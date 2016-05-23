@@ -15,6 +15,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import DB.DBUtil;
 import functions.CommonUtil;
 import secrecy.MD5Util;
 import secrecy.SecrecyUtil;
@@ -65,11 +66,11 @@ public class loginServlet extends HttpServlet {
 		} catch (SQLException e) {
 			CommonUtil.LogError(log,e);
 			request.setAttribute("errorMsg", "登入时,系统错误");
-			request.getRequestDispatcher("/login.jsp").forward(request, response);
-			
+			request.getRequestDispatcher("/login.jsp").forward(request, response);			
 		}
-		
-		
 	}
-
+	
+	protected void destory(){
+		DBUtil.finishSqlResult();
+	}
 }

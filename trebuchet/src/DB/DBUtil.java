@@ -12,10 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.log4j.Logger;
 
 public class DBUtil {
+	private static Logger log = Logger.getLogger(Logger.class);
 	private static BasicDataSource dataSource;
-
+	private static Connection connection = null;
 	public static BasicDataSource getDataSource() {
 		return dataSource;
 	}
@@ -29,9 +31,15 @@ public class DBUtil {
 	* @return conn
 	 * @throws SQLException 
 	*/
-	private static Connection getConnection(BasicDataSource ds) throws SQLException {		
-		Connection conn = ds.getConnection();		
-		return conn;
+	private static Connection getConnection(BasicDataSource ds) throws SQLException {	
+		if(null == connection){
+			connection = ds.getConnection();
+		}else{
+			if(connection.isClosed()){
+				connection = ds.getConnection();
+			}
+		}
+		return connection;
 	}
 	
 	/**
@@ -83,22 +91,49 @@ public class DBUtil {
 		}	
 	}	
 	
+	private static void rollbackWithException(){
+		Connection conn = null;
+		try{
+			conn = getConnection(DBUtil.dataSource);
+			if(null != conn){	
+				conn.rollback();				
+			}
+		}catch(Exception e){
+			//do Nothing
+		}		
+	}
+	
+	public static void finishSqlResult(){
+		Connection conn = null;
+		try{
+			conn = getConnection(DBUtil.dataSource);
+			if(null != conn){
+				conn.commit();
+				closeConnection(conn);
+			}
+		}catch(Exception e){
+			//do Nothing
+		}
+	}
+	
 	public static int executeSqlResult(String sql,Object[] args) throws SQLException{
 		Connection conn = null;
 		PreparedStatement statement = null;
-		ResultSet brs = null;
 		int result=0;
 		try{
+			log.info("执行sql语句:"+sql);
 			conn = getConnection(DBUtil.dataSource);			
 			statement=conn.prepareStatement(sql);
 			for(int pIdx=0;pIdx<args.length;pIdx++){
 				statement.setObject(pIdx+1,args[pIdx].toString());
 			}
 			result = statement.executeUpdate();
+			log.info("执行sql语句:"+statement.toString());
+		}catch(Exception e){
+			log.error("Sql:"+sql+",执行报错");
+			rollbackWithException();			
 		}finally{
-			closeResultSet(brs);
 			closeStatement(statement);
-			closeConnection(conn);
 		}
 		return result;
 	}
@@ -131,6 +166,7 @@ public class DBUtil {
 		Connection conn = null;
 		PreparedStatement statement = null;
 		try{
+			log.info("执行sql语句:"+sql);
 			conn = getConnection(DBUtil.dataSource);		
 			statement=conn.prepareStatement(sql);
 			if(null != params){
@@ -138,6 +174,7 @@ public class DBUtil {
 					statement.setObject(pIdx+1,params[pIdx].toString());
 				}
 			}
+			log.info("执行sql语句:"+statement.toString());
 			brs = statement.executeQuery();
 			colNames = getDBColumnName(brs);
 			
@@ -155,10 +192,12 @@ public class DBUtil {
 				}
 				result.add(line);
 			}
+		}catch(Exception e){
+			log.error("Sql:"+sql+",执行报错");
+			rollbackWithException();			
 		}finally{
 			closeResultSet(brs);
 			closeStatement(statement);
-			closeConnection(conn);
 		}
 		return result;
 	}
